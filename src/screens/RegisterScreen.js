@@ -11,6 +11,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
 import { colors } from '../utils/colors';
 
 const RegisterScreen = ({ navigation }) => {
@@ -29,12 +30,42 @@ const RegisterScreen = ({ navigation }) => {
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <ScrollView contentContainerStyle={styles.scrollContent}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Create Account</Text>
-          <Text style={styles.subtitle}>Sign up to get started</Text>
-        </View>
+      {/* Neon Background Orbs */}
+      <View style={styles.backgroundGradients}>
+        {/* Pink Orb - Top Left */}
+        <Svg style={styles.gradientOrb1} viewBox="0 0 300 300">
+          <Defs>
+            <RadialGradient id="pinkGradient" cx="50%" cy="50%">
+              <Stop offset="0%" stopColor="rgb(255, 53, 184)" stopOpacity="0.8" />
+              <Stop offset="40%" stopColor="rgb(255, 53, 184)" stopOpacity="0.4" />
+              <Stop offset="70%" stopColor="rgb(255, 53, 184)" stopOpacity="0.1" />
+              <Stop offset="100%" stopColor="rgb(255, 53, 184)" stopOpacity="0" />
+            </RadialGradient>
+          </Defs>
+          <Circle cx="150" cy="150" r="150" fill="url(#pinkGradient)" />
+        </Svg>
 
+        {/* Cyan Orb - Bottom Right */}
+        <Svg style={styles.gradientOrb2} viewBox="0 0 400 400">
+          <Defs>
+            <RadialGradient id="cyanGradient" cx="50%" cy="50%">
+              <Stop offset="0%" stopColor="rgb(0, 250, 254)" stopOpacity="0.8" />
+              <Stop offset="40%" stopColor="rgb(0, 250, 254)" stopOpacity="0.4" />
+              <Stop offset="70%" stopColor="rgb(0, 250, 254)" stopOpacity="0.1" />
+              <Stop offset="100%" stopColor="rgb(0, 250, 254)" stopOpacity="0" />
+            </RadialGradient>
+          </Defs>
+          <Circle cx="200" cy="200" r="200" fill="url(#cyanGradient)" />
+        </Svg>
+      </View>
+
+      {/* Header at top */}
+      <View style={styles.header}>
+        <Text style={styles.title}>Create Account</Text>
+        <Text style={styles.subtitle}>Sign up to get started</Text>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scrollContent}>
         <View style={styles.form}>
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Full Name</Text>
@@ -92,7 +123,10 @@ const RegisterScreen = ({ navigation }) => {
               />
             </View>
           </View>
+        </View>
 
+        {/* Footer at bottom */}
+        <View style={styles.footer}>
           <TouchableOpacity
             onPress={handleRegister}
             activeOpacity={0.8}
@@ -102,13 +136,15 @@ const RegisterScreen = ({ navigation }) => {
               colors={[colors.pink, colors.cyan]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
-              style={styles.button}
+              style={styles.buttonGradientBorder}
             >
-              <Text style={styles.buttonText}>Sign Up</Text>
+              <View style={styles.buttonInner}>
+                <Text style={styles.buttonText}>Sign Up</Text>
+              </View>
             </LinearGradient>
           </TouchableOpacity>
 
-          <View style={styles.footer}>
+          <View style={styles.footerLinks}>
             <Text style={styles.footerText}>Already have an account? </Text>
             <TouchableOpacity onPress={() => navigation.navigate('Login')}>
               <Text style={styles.signInText}>Sign In</Text>
@@ -125,14 +161,36 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
+  backgroundGradients: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+  },
+  gradientOrb1: {
+    position: 'absolute',
+    width: 600,
+    height: 600,
+    top: -10,
+    left: -150,
+  },
+  gradientOrb2: {
+    position: 'absolute',
+    width: 600,
+    height: 600,
+    bottom: 50,
+    right: -250,
+  },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'center',
     paddingHorizontal: 24,
-    paddingVertical: 40,
+    justifyContent: 'center',
   },
   header: {
-    marginBottom: 48,
+    position: 'absolute',
+    top: 60,
+    left: 24,
+    right: 24,
+    zIndex: 1,
   },
   title: {
     fontSize: 36,
@@ -168,21 +226,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.white,
   },
+  footer: {
+    marginTop: 32,
+  },
   buttonContainer: {
     marginBottom: 24,
-    marginTop: 8,
   },
-  button: {
-    paddingVertical: 16,
+  buttonGradientBorder: {
     borderRadius: 25,
+    padding: 2,
+  },
+  buttonInner: {
+    backgroundColor: colors.background,
+    paddingVertical: 15,
+    paddingHorizontal: 40,
+    borderRadius: 23,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   buttonText: {
     color: colors.white,
     fontSize: 18,
     fontWeight: '600',
   },
-  footer: {
+  footerLinks: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
