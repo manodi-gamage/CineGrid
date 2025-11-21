@@ -131,13 +131,13 @@ const RegisterScreen = ({ navigation }) => {
         </Svg>
       </View>
 
-      {/* Header at top */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Create Account</Text>
-        <Text style={styles.subtitle}>Sign up to get started</Text>
-      </View>
-
       <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Header at top */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Create Account</Text>
+          <Text style={styles.subtitle}>Sign up to get started</Text>
+        </View>
+
         {/* Demo Notice */}
         <View style={styles.demoNotice}>
           <Text style={styles.demoText}>
@@ -376,14 +376,11 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    justifyContent: 'center',
+    paddingTop: 60,
+    paddingBottom: 40,
   },
   header: {
-    position: 'absolute',
-    top: 60,
-    left: 24,
-    right: 24,
-    zIndex: 1,
+    marginBottom: 24,
   },
   title: {
     fontSize: 36,
