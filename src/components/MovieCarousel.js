@@ -126,7 +126,6 @@ const MovieCarousel = ({ movies, onMoviePress }) => {
         scrollEventThrottle={16}
         snapToInterval={CARD_WIDTH + 32}
         decelerationRate="fast"
-        contentContainerStyle={styles.flatListContent}
       />
       {renderPagination()}
     </View>
@@ -138,15 +137,12 @@ const styles = StyleSheet.create({
     height: CAROUSEL_HEIGHT,
     marginBottom: 8,
   },
-  flatListContent: {
-    paddingHorizontal: 16,
-  },
   carouselItem: {
     width: CARD_WIDTH,
     height: CAROUSEL_HEIGHT - 40,
     borderRadius: 16,
     overflow: 'hidden',
-    marginRight: 16,
+    marginHorizontal: 16,
     backgroundColor: colors.dark,
   },
   backdrop: {
