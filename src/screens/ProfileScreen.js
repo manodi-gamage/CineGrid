@@ -1,23 +1,48 @@
 // src/screens/ProfileScreen.js
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  Image,
-  TouchableOpacity,
   ScrollView,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
-import { CommonActions } from '@react-navigation/native';
 import { colors } from '../utils/colors';
 import { useAuth } from '../features/auth/AuthContext';
+import { useFavorites } from '../contexts/FavoritesContext';
+import ProfileHeader from '../components/ProfileHeader';
+import StatCard from '../components/StatCard';
+import SettingsItem from '../components/SettingsItem';
+import AboutSection from '../components/AboutSection';
+import { APP_INFO } from '../utils/appInfo';
 
 const ProfileScreen = ({ navigation }) => {
   const { user, logout } = useAuth();
+  const { favorites } = useFavorites();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const [darkModeEnabled] = useState(true); // Always enabled
 
+  // Calculate statistics
+  const favoritesCount = favorites?.length || 0;
+  const stats = {
+    favorites: favoritesCount,
+    watched: 156, // Placeholder
+    watchlist: 12, // Placeholder
+    reviews: 0,   // Placeholder
+  };
+
+  // Show coming soon alert for placeholder features
+  const showComingSoon = (feature) => {
+    Alert.alert(
+      'Coming Soon',
+      `${feature} will be available in a future update.`,
+      [{ text: 'OK' }]
+    );
+  };
+
+  // Handle logout with confirmation
   const handleLogout = () => {
     Alert.alert(
       'Logout',
@@ -32,23 +57,8 @@ const ProfileScreen = ({ navigation }) => {
           style: 'destructive',
           onPress: async () => {
             try {
-              console.log('Logging out...');
               await logout();
-              console.log('Logout successful, navigating to Login...');
-              
-              // Get the root navigator and reset to Login
-              const rootNavigation = navigation.getParent();
-              if (rootNavigation) {
-                rootNavigation.dispatch(
-                  CommonActions.reset({
-                    index: 0,
-                    routes: [{ name: 'Login' }],
-                  })
-                );
-              } else {
-                // Fallback: try direct navigation
-                navigation.navigate('Login');
-              }
+              // Navigation handled automatically by AuthContext
             } catch (error) {
               console.error('Logout error:', error);
               Alert.alert('Error', 'Failed to logout. Please try again.');
@@ -58,6 +68,32 @@ const ProfileScreen = ({ navigation }) => {
       ]
     );
   };
+
+  // Handle delete account with warning
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete Account',
+      'Are you sure you want to delete your account? This action cannot be undone.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            showComingSoon('Account deletion');
+          },
+        },
+      ]
+    );
+  };
+
+  // Section Header Component
+  const SectionHeader = ({ title }) => (
+    <Text style={styles.sectionHeader}>{title}</Text>
+  );
 
   return (
     <View style={styles.container}>
@@ -90,66 +126,164 @@ const ProfileScreen = ({ navigation }) => {
         </Svg>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView 
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Profile Header */}
-        <View style={styles.profileHeader}>
-          <View style={styles.imageContainer}>
-            <LinearGradient
-              colors={[colors.pink, colors.cyan]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.imageGradientBorder}
-            >
-              <Image
-                source={{
-                  uri: user?.image || 'https://ui-avatars.com/api/?name=' + 
-                    encodeURIComponent(user?.firstName + ' ' + user?.lastName) + 
-                    '&size=128&background=random',
-                }}
-                style={styles.profileImage}
-                defaultSource={require('../../assets/icon.png')}
-              />
-            </LinearGradient>
-          </View>
-          <Text style={styles.name}>
-            {user?.firstName || ''} {user?.lastName || ''}
-          </Text>
-          <Text style={styles.username}>@{user?.username || 'user'}</Text>
+        <ProfileHeader 
+          user={user} 
+          onEditPress={() => showComingSoon('Edit Profile')}
+        />
+
+        {/* Statistics Section */}
+        <SectionHeader title="Statistics" />
+        <View style={styles.statsGrid}>
+          <StatCard 
+            icon="❤️" 
+            label="Favorites" 
+            value={stats.favorites} 
+            color="#FF6B6B" 
+          />
+          <StatCard 
+            icon="🎬" 
+            label="Watched" 
+            value={stats.watched} 
+            color="#4ECDC4" 
+          />
+          <StatCard 
+            icon="📝" 
+            label="Reviews" 
+            value={stats.reviews} 
+            color="#95E1D3" 
+          />
+          <StatCard 
+            icon="⭐" 
+            label="Watchlist" 
+            value={stats.watchlist} 
+            color="#FFE66D" 
+          />
         </View>
 
-        {/* Profile Info Cards */}
-        <View style={styles.infoContainer}>
-          <View style={styles.infoCard}>
-            <Text style={styles.infoLabel}>Email</Text>
-            <Text style={styles.infoValue}>{user?.email || 'N/A'}</Text>
-          </View>
-
-          <View style={styles.infoCard}>
-            <Text style={styles.infoLabel}>Gender</Text>
-            <Text style={styles.infoValue}>
-              {user?.gender ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1) : 'N/A'}
-            </Text>
-          </View>
-
-          <View style={styles.infoCard}>
-            <Text style={styles.infoLabel}>User ID</Text>
-            <Text style={styles.infoValue}>{user?.id || 'N/A'}</Text>
-          </View>
+        {/* Preferences Section */}
+        <SectionHeader title="Preferences" />
+        <View style={styles.section}>
+          <SettingsItem
+            icon="🔔"
+            label="Notifications"
+            type="toggle"
+            isEnabled={notificationsEnabled}
+            onToggle={setNotificationsEnabled}
+          />
+          <SettingsItem
+            icon="🌙"
+            label="Dark Mode"
+            type="toggle"
+            isEnabled={darkModeEnabled}
+            onToggle={() => showComingSoon('Dark mode toggle')}
+          />
+          <SettingsItem
+            icon="🌍"
+            label="Language"
+            type="text"
+            value="English"
+            onPress={() => showComingSoon('Language settings')}
+          />
+          <SettingsItem
+            icon="🎬"
+            label="Default View"
+            type="text"
+            value="Grid"
+            onPress={() => showComingSoon('View settings')}
+          />
         </View>
 
-        {/* Logout Button */}
-        <TouchableOpacity
-          onPress={() => {
-            console.log('Logout button pressed!');
-            handleLogout();
-          }}
-          activeOpacity={0.8}
-          style={styles.logoutButtonContainer}
-        >
-          <View style={styles.logoutButton}>
-            <Text style={styles.logoutButtonText}>Logout</Text>
-          </View>
-        </TouchableOpacity>
+        {/* Account Section */}
+        <SectionHeader title="Account" />
+        <View style={styles.section}>
+          <SettingsItem
+            icon="👤"
+            label="Edit Profile"
+            onPress={() => showComingSoon('Edit Profile')}
+          />
+          <SettingsItem
+            icon="🔒"
+            label="Change Password"
+            onPress={() => showComingSoon('Change Password')}
+          />
+          <SettingsItem
+            icon="📧"
+            label="Email Preferences"
+            onPress={() => showComingSoon('Email Preferences')}
+          />
+          <SettingsItem
+            icon="🔐"
+            label="Privacy Settings"
+            onPress={() => showComingSoon('Privacy Settings')}
+          />
+        </View>
+
+        {/* About Section */}
+        <SectionHeader title="About" />
+        <View style={styles.section}>
+          <SettingsItem
+            icon="ℹ️"
+            label="About CineGRID"
+            onPress={() => showComingSoon('About CineGRID')}
+          />
+          <SettingsItem
+            icon="📱"
+            label="App Version"
+            type="text"
+            value={APP_INFO.version}
+            showArrow={false}
+            onPress={() => {}}
+          />
+          <SettingsItem
+            icon="📄"
+            label="Terms of Service"
+            onPress={() => showComingSoon('Terms of Service')}
+          />
+          <SettingsItem
+            icon="🔒"
+            label="Privacy Policy"
+            onPress={() => showComingSoon('Privacy Policy')}
+          />
+          <SettingsItem
+            icon="⭐"
+            label="Rate App"
+            onPress={() => showComingSoon('Rate App')}
+          />
+          <SettingsItem
+            icon="📮"
+            label="Contact Support"
+            onPress={() => showComingSoon('Contact Support')}
+          />
+        </View>
+
+        {/* About Section Component */}
+        <AboutSection />
+
+        {/* Danger Zone */}
+        <SectionHeader title="Danger Zone" />
+        <View style={styles.section}>
+          <SettingsItem
+            icon="🚪"
+            label="Logout"
+            onPress={handleLogout}
+            showArrow={false}
+          />
+          <SettingsItem
+            icon="🗑️"
+            label="Delete Account"
+            danger={true}
+            onPress={handleDeleteAccount}
+            showArrow={false}
+          />
+        </View>
+
+        {/* Bottom Spacing */}
+        <View style={{ height: 40 }} />
       </ScrollView>
     </View>
   );
@@ -181,76 +315,26 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: 24,
-    paddingTop: 40,
+    paddingHorizontal: 16,
+    paddingTop: 20,
     paddingBottom: 40,
   },
-  profileHeader: {
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  imageContainer: {
-    marginBottom: 20,
-  },
-  imageGradientBorder: {
-    borderRadius: 64,
-    padding: 3,
-  },
-  profileImage: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    borderWidth: 4,
-    borderColor: colors.background,
-  },
-  name: {
-    fontSize: 28,
+  sectionHeader: {
+    fontSize: 20,
     fontWeight: 'bold',
-    color: colors.white,
-    marginBottom: 4,
+    color: '#FFFFFF',
+    marginTop: 24,
+    marginBottom: 12,
+    paddingHorizontal: 4,
   },
-  username: {
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
-  infoContainer: {
-    marginBottom: 40,
-  },
-  infoCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 12,
-    padding: 20,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  infoLabel: {
-    fontSize: 12,
-    color: colors.textSecondary,
+  statsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -6,
     marginBottom: 8,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
   },
-  infoValue: {
-    fontSize: 16,
-    color: colors.white,
-    fontWeight: '500',
-  },
-  logoutButtonContainer: {
-    marginTop: 20,
-  },
-  logoutButton: {
-    backgroundColor: colors.pink,
-    paddingVertical: 15,
-    paddingHorizontal: 40,
-    borderRadius: 25,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoutButtonText: {
-    color: colors.white,
-    fontSize: 18,
-    fontWeight: '600',
+  section: {
+    marginBottom: 8,
   },
 });
 
