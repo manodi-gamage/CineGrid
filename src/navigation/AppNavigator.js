@@ -1,8 +1,11 @@
 // src/navigation/AppNavigator.js
 import React, { useState, useEffect } from 'react';
+import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { colors } from '../utils/colors';
+import { AuthProvider, useAuth } from '../features/auth/AuthContext';
+import { hasLaunchedBefore, setHasLaunched } from '../features/auth/authStorage';
 import MainTabNavigator from './MainTabNavigator';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
@@ -11,60 +14,123 @@ import OnboardingScreen from '../screens/OnboardingScreen';
 
 const Stack = createStackNavigator();
 
-const AppNavigator = () => {
-  // IMPORTANT: These states will be managed by Redux later (Task 3)
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+/**
+ * Linking configuration for deep linking and web URLs
+ */
+const linking = {
+  prefixes: ['http://localhost:8081', 'cinegrid://'],
+  config: {
+    screens: {
+      Onboarding: 'onboarding',
+      Login: 'login',
+      Register: 'register',
+      Main: {
+        path: 'app',
+        screens: {
+          Home: 'home',
+          Favourites: 'favourites',
+          Profile: 'profile',
+        },
+      },
+      Details: 'details/:id',
+    },
+  },
+};
+
+/**
+ * Navigation component that manages auth-based routing
+ */
+const Navigation = () => {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [isFirstLaunch, setIsFirstLaunch] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isCheckingLaunch, setIsCheckingLaunch] = useState(true);
 
   useEffect(() => {
-    // Check if this is the first time the user is opening the app
-    const checkFirstLaunch = async () => {
-      try {
-        const hasLaunched = await AsyncStorage.getItem('hasLaunched');
-        if (hasLaunched === null) {
-          setIsFirstLaunch(true);
-          await AsyncStorage.setItem('hasLaunched', 'true');
-        } else {
-          setIsFirstLaunch(false);
-        }
-      } catch (error) {
-        console.error('Error checking first launch:', error);
-        setIsFirstLaunch(false);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     checkFirstLaunch();
   }, []);
 
-  // Show loading screen while checking first launch
-  if (isLoading) {
-    return null; // You can replace this with a proper loading screen
+  /**
+   * Check if this is the first time the user is opening the app
+   */
+  const checkFirstLaunch = async () => {
+    try {
+      const hasLaunched = await hasLaunchedBefore();
+      
+      if (!hasLaunched) {
+        setIsFirstLaunch(true);
+        await setHasLaunched();
+      } else {
+        setIsFirstLaunch(false);
+      }
+    } catch (error) {
+      console.error('Error checking first launch:', error);
+      setIsFirstLaunch(false);
+    } finally {
+      setIsCheckingLaunch(false);
+    }
+  };
+
+  // Show loading screen while checking authentication and first launch
+  if (authLoading || isCheckingLaunch) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={colors.cyan} />
+      </View>
+    );
   }
 
-  // Determine initial route
-  const getInitialRoute = () => {
-    if (isFirstLaunch) return 'Onboarding';
-    if (isLoggedIn) return 'Main';
+  /**
+   * Determine initial route based on launch status and authentication
+   */
+  const getInitialRouteName = () => {
+    if (isFirstLaunch) {
+      return 'Onboarding';
+    }
+    if (isAuthenticated) {
+      return 'Main';
+    }
     return 'Login';
   };
 
   return (
-    <NavigationContainer>
+    <NavigationContainer linking={linking}>
       <Stack.Navigator
-        initialRouteName={getInitialRoute()}
+        initialRouteName={getInitialRouteName()}
         screenOptions={{ headerShown: false }}
       >
+        {/* Always include all screens but control access via navigation logic */}
         <Stack.Screen name="Onboarding" component={OnboardingScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="Main" component={MainTabNavigator} />
-        <Stack.Screen name="Details" component={DetailsScreen} />
+        <Stack.Screen
+          name="Details"
+          component={DetailsScreen}
+          options={{ headerShown: true, title: 'Movie Details' }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
 };
+
+/**
+ * Main App Navigator with Authentication Provider
+ */
+const AppNavigator = () => {
+  return (
+    <AuthProvider>
+      <Navigation />
+    </AuthProvider>
+  );
+};
+
+const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.background,
+  },
+});
 
 export default AppNavigator;

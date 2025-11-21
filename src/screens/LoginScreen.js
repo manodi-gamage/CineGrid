@@ -10,25 +10,105 @@ import {
   Platform,
   ScrollView,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CommonActions } from '@react-navigation/native';
 import { colors } from '../utils/colors';
+import { useAuth } from '../features/auth/AuthContext';
+import { loginValidationSchema, validateField } from '../features/auth/validation';
 
 const LoginScreen = ({ navigation }) => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const { login } = useAuth();
 
-  const handleLogin = () => {
-    // Add your login logic here
-    console.log('Login:', email, password);
+  /**
+   * Validate field on blur
+   */
+  const handleFieldBlur = async (fieldName, value) => {
+    const error = await validateField(loginValidationSchema, fieldName, value);
+    setErrors((prev) => ({ ...prev, [fieldName]: error }));
+  };
+
+  /**
+   * Handle login form submission
+   */
+  const handleLogin = async () => {
+    console.log('Login button clicked');
+    try {
+      // Clear previous errors
+      setErrors({});
+      
+      console.log('Validating form with:', { username, password });
+      
+      // Validate form
+      await loginValidationSchema.validate(
+        { username, password },
+        { abortEarly: false }
+      );
+
+      console.log('Validation passed, attempting login...');
+      setIsLoading(true);
+
+      // Attempt login
+      const result = await login(username, password);
+      console.log('Login successful:', result);
+
+      // Navigate to main app and clear the navigation stack
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Main' }],
+        })
+      );
+    } catch (error) {
+      console.error('Login error:', error);
+      setIsLoading(false);
+
+      if (error.name === 'ValidationError') {
+        // Handle validation errors
+        const validationErrors = {};
+        error.inner.forEach((err) => {
+          if (err.path) {
+            validationErrors[err.path] = err.message;
+          }
+        });
+        console.log('Validation errors:', validationErrors);
+        setErrors(validationErrors);
+      } else {
+        // Handle API errors
+        Alert.alert(
+          'Login Failed',
+          error.message || 'Invalid username or password. Please try again.',
+          [{ text: 'OK' }]
+        );
+      }
+    }
+  };
+
+  /**
+   * Fill form with test credentials
+   */
+  const useTestCredentials = () => {
+    setUsername('emilys');
+    setPassword('emilyspass');
+    setErrors({});
+    Alert.alert(
+      'Test Credentials Loaded',
+      'You can now tap "Sign In" to login with test credentials.',
+      [{ text: 'OK' }]
+    );
   };
 
   // DEBUG FUNCTION - Remove before production
   const resetOnboarding = async () => {
     try {
-      await AsyncStorage.removeItem('hasLaunched');
+      await AsyncStorage.removeItem('@cinegrid_has_launched');
       Alert.alert(
         'Onboarding Reset',
         'The onboarding has been reset. Please close and restart the app to see the onboarding screen again.',
@@ -46,7 +126,7 @@ const LoginScreen = ({ navigation }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       {/* Neon Background Orbs */}
-      <View style={styles.backgroundGradients}>
+      <View style={styles.backgroundGradients} pointerEvents="none">
         {/* Pink Orb - Top Left */}
         <Svg style={styles.gradientOrb1} viewBox="0 0 300 300">
           <Defs>
@@ -92,36 +172,72 @@ const LoginScreen = ({ navigation }) => {
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email</Text>
-            <View style={styles.inputWrapper}>
+            <Text style={styles.label}>Username</Text>
+            <View style={[
+              styles.inputWrapper,
+              errors.username && styles.inputError
+            ]}>
               <TextInput
                 style={styles.input}
-                placeholder="Enter your email"
+                placeholder="Enter your username"
                 placeholderTextColor={colors.textSecondary}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
+                value={username}
+                onChangeText={(text) => {
+                  setUsername(text);
+                  if (errors.username) {
+                    setErrors((prev) => ({ ...prev, username: null }));
+                  }
+                }}
+                onBlur={() => handleFieldBlur('username', username)}
                 autoCapitalize="none"
+                editable={!isLoading}
               />
             </View>
+            {errors.username && (
+              <Text style={styles.errorText}>{errors.username}</Text>
+            )}
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Password</Text>
-            <View style={styles.inputWrapper}>
+            <View style={[
+              styles.inputWrapper,
+              errors.password && styles.inputError
+            ]}>
               <TextInput
                 style={styles.input}
                 placeholder="Enter your password"
                 placeholderTextColor={colors.textSecondary}
                 value={password}
-                onChangeText={setPassword}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  if (errors.password) {
+                    setErrors((prev) => ({ ...prev, password: null }));
+                  }
+                }}
+                onBlur={() => handleFieldBlur('password', password)}
                 secureTextEntry
+                editable={!isLoading}
               />
             </View>
+            {errors.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
           </View>
 
           <TouchableOpacity>
             <Text style={styles.forgotPassword}>Forgot Password?</Text>
+          </TouchableOpacity>
+
+          {/* Test Credentials Button */}
+          <TouchableOpacity
+            onPress={useTestCredentials}
+            style={styles.testCredentialsButton}
+            disabled={isLoading}
+          >
+            <Text style={styles.testCredentialsText}>
+              📝 Use Test Credentials
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -131,6 +247,7 @@ const LoginScreen = ({ navigation }) => {
             onPress={handleLogin}
             activeOpacity={0.8}
             style={styles.buttonContainer}
+            disabled={isLoading}
           >
             <LinearGradient
               colors={[colors.pink, colors.cyan]}
@@ -139,14 +256,21 @@ const LoginScreen = ({ navigation }) => {
               style={styles.buttonGradientBorder}
             >
               <View style={styles.buttonInner}>
-                <Text style={styles.buttonText}>Sign In</Text>
+                {isLoading ? (
+                  <ActivityIndicator color={colors.white} size="small" />
+                ) : (
+                  <Text style={styles.buttonText}>Sign In</Text>
+                )}
               </View>
             </LinearGradient>
           </TouchableOpacity>
 
           <View style={styles.footerLinks}>
             <Text style={styles.footerText}>Don't have an account? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Register')}
+              disabled={isLoading}
+            >
               <Text style={styles.signUpText}>Sign Up</Text>
             </TouchableOpacity>
           </View>
@@ -247,6 +371,31 @@ const styles = StyleSheet.create({
     color: colors.cyan,
     fontSize: 14,
     textAlign: 'right',
+  },
+  testCredentialsButton: {
+    marginTop: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    backgroundColor: 'rgba(0, 250, 254, 0.1)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.cyan,
+    alignItems: 'center',
+  },
+  testCredentialsText: {
+    color: colors.cyan,
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  inputError: {
+    borderColor: colors.pink,
+    borderWidth: 1.5,
+  },
+  errorText: {
+    color: colors.pink,
+    fontSize: 12,
+    marginTop: 4,
+    marginLeft: 4,
   },
   footer: {
     marginTop: 32,
