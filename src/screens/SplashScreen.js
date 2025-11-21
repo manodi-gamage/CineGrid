@@ -9,6 +9,7 @@
 
 import React, { useEffect } from 'react';
 import { View, Text, Image, ActivityIndicator, StyleSheet } from 'react-native';
+import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
 import { hasCompletedOnboarding } from '../utils/onboardingStorage';
 import { useAuth } from '../features/auth/AuthContext';
 import { colors } from '../utils/colors';
@@ -49,6 +50,35 @@ const SplashScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      {/* Gradient Background Orbs */}
+      <View style={styles.backgroundGradients} pointerEvents="none">
+        {/* Pink Orb - Top Left */}
+        <Svg style={styles.gradientOrb1} viewBox="0 0 300 300">
+          <Defs>
+            <RadialGradient id="pinkGradientSplash" cx="50%" cy="50%">
+              <Stop offset="0%" stopColor="rgb(255, 53, 184)" stopOpacity="0.8" />
+              <Stop offset="40%" stopColor="rgb(255, 53, 184)" stopOpacity="0.4" />
+              <Stop offset="70%" stopColor="rgb(255, 53, 184)" stopOpacity="0.1" />
+              <Stop offset="100%" stopColor="rgb(255, 53, 184)" stopOpacity="0" />
+            </RadialGradient>
+          </Defs>
+          <Circle cx="150" cy="150" r="150" fill="url(#pinkGradientSplash)" />
+        </Svg>
+
+        {/* Cyan Orb - Bottom Right */}
+        <Svg style={styles.gradientOrb2} viewBox="0 0 400 400">
+          <Defs>
+            <RadialGradient id="cyanGradientSplash" cx="50%" cy="50%">
+              <Stop offset="0%" stopColor="rgb(0, 250, 254)" stopOpacity="0.8" />
+              <Stop offset="40%" stopColor="rgb(0, 250, 254)" stopOpacity="0.4" />
+              <Stop offset="70%" stopColor="rgb(0, 250, 254)" stopOpacity="0.1" />
+              <Stop offset="100%" stopColor="rgb(0, 250, 254)" stopOpacity="0" />
+            </RadialGradient>
+          </Defs>
+          <Circle cx="200" cy="200" r="200" fill="url(#cyanGradientSplash)" />
+        </Svg>
+      </View>
+
       {/* App Logo */}
       <Image
         source={require('../../assets/icon.png')}
@@ -75,6 +105,25 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: colors.background,
+  },
+  backgroundGradients: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+  },
+  gradientOrb1: {
+    position: 'absolute',
+    width: 600,
+    height: 600,
+    top: -150,
+    left: -200,
+  },
+  gradientOrb2: {
+    position: 'absolute',
+    width: 600,
+    height: 600,
+    bottom: -200,
+    right: -200,
   },
   logo: {
     width: 120,

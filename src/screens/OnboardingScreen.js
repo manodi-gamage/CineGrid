@@ -8,10 +8,12 @@
  * - Pagination dots
  * - Skip and Next buttons
  * - Smooth animations
+ * - Gradient background orbs
  */
 
 import React, { useRef, useState } from 'react';
 import { View, FlatList, StyleSheet, Dimensions } from 'react-native';
+import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
 import OnboardingSlide from '../components/OnboardingSlide';
 import PaginationDots from '../components/PaginationDots';
 import OnboardingButton from '../components/OnboardingButton';
@@ -96,6 +98,48 @@ const OnboardingScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      {/* Gradient Background Orbs - Using SVG for true radial gradients */}
+      <View style={styles.backgroundGradients} pointerEvents="none">
+        {/* Pink Orb - Top Left */}
+        <Svg style={styles.gradientOrb1} viewBox="0 0 300 300">
+          <Defs>
+            <RadialGradient id="pinkGradient" cx="50%" cy="50%">
+              <Stop offset="0%" stopColor="rgb(255, 53, 184)" stopOpacity="0.8" />
+              <Stop offset="40%" stopColor="rgb(255, 53, 184)" stopOpacity="0.4" />
+              <Stop offset="70%" stopColor="rgb(255, 53, 184)" stopOpacity="0.1" />
+              <Stop offset="100%" stopColor="rgb(255, 53, 184)" stopOpacity="0" />
+            </RadialGradient>
+          </Defs>
+          <Circle cx="150" cy="150" r="150" fill="url(#pinkGradient)" />
+        </Svg>
+
+        {/* Cyan Orb - Bottom Right */}
+        <Svg style={styles.gradientOrb2} viewBox="0 0 400 400">
+          <Defs>
+            <RadialGradient id="cyanGradient" cx="50%" cy="50%">
+              <Stop offset="0%" stopColor="rgb(0, 250, 254)" stopOpacity="0.8" />
+              <Stop offset="40%" stopColor="rgb(0, 250, 254)" stopOpacity="0.4" />
+              <Stop offset="70%" stopColor="rgb(0, 250, 254)" stopOpacity="0.1" />
+              <Stop offset="100%" stopColor="rgb(0, 250, 254)" stopOpacity="0" />
+            </RadialGradient>
+          </Defs>
+          <Circle cx="200" cy="200" r="200" fill="url(#cyanGradient)" />
+        </Svg>
+
+        {/* Green Orb - Middle */}
+        <Svg style={styles.gradientOrb3} viewBox="0 0 350 350">
+          <Defs>
+            <RadialGradient id="greenGradient" cx="50%" cy="50%">
+              <Stop offset="0%" stopColor="rgb(56, 239, 125)" stopOpacity="0.6" />
+              <Stop offset="40%" stopColor="rgb(56, 239, 125)" stopOpacity="0.3" />
+              <Stop offset="70%" stopColor="rgb(56, 239, 125)" stopOpacity="0.1" />
+              <Stop offset="100%" stopColor="rgb(56, 239, 125)" stopOpacity="0" />
+            </RadialGradient>
+          </Defs>
+          <Circle cx="175" cy="175" r="175" fill="url(#greenGradient)" />
+        </Svg>
+      </View>
+
       {/* Skip Button */}
       {!isLastSlide && (
         <OnboardingButton
@@ -143,6 +187,32 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: colors.background,
+  },
+  backgroundGradients: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+  },
+  gradientOrb1: {
+    position: 'absolute',
+    width: 600,
+    height: 600,
+    top: -100,
+    left: -150,
+  },
+  gradientOrb2: {
+    position: 'absolute',
+    width: 600,
+    height: 600,
+    bottom: -150,
+    right: -250,
+  },
+  gradientOrb3: {
+    position: 'absolute',
+    width: 500,
+    height: 500,
+    top: '40%',
+    left: '20%',
   },
   skipButton: {
     position: 'absolute',
