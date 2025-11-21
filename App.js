@@ -3,12 +3,14 @@ import { StyleSheet, Text, View } from 'react-native';
 import 'react-native-gesture-handler'; 
 import React from 'react';
 import AppNavigator from './src/navigation/AppNavigator';
-
+import { FavoritesProvider } from './src/contexts/FavoritesContext';
 
 
 export default function App() {
   return (
-    <AppNavigator />
+    <FavoritesProvider>
+      <AppNavigator />
+    </FavoritesProvider>
   );
 }
 

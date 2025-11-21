@@ -13,3 +13,6 @@ export { default as TrailerCard } from './TrailerCard';
 export { default as GenreTag } from './GenreTag';
 export { default as MovieStats } from './MovieStats';
 export { default as SimilarMoviesSection } from './SimilarMoviesSection';
+export { default as FavoriteMovieCard } from './FavoriteMovieCard';
+export { default as EmptyFavorites } from './EmptyFavorites';
+export { default as RemoveButton } from './RemoveButton';

@@ -3,7 +3,7 @@
  * Comprehensive movie details screen with backdrop, cast, trailers, and similar movies
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -15,13 +15,14 @@ import {
   StyleSheet,
   Dimensions,
   Alert,
+  Animated,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from 'expo-linear-gradient';
 import { getMovieDetails } from '../services/tmdbService';
 import { getPosterUrl, getBackdropUrl } from '../config/tmdbConfig';
 import { formatRuntime, getYearFromDate, formatMoney } from '../utils/formatters';
 import { colors } from '../utils/colors';
+import { useFavorites } from '../contexts/FavoritesContext';
 import GenreTag from '../components/GenreTag';
 import MovieStats from '../components/MovieStats';
 import CastCard from '../components/CastCard';
@@ -37,6 +38,9 @@ const POSTER_HEIGHT = 225;
 const DetailsScreen = ({ route, navigation }) => {
   const { movieId } = route.params;
 
+  // Get favorites context
+  const { isFavorite: checkIsFavorite, toggleFavorite: toggleFavoriteContext } = useFavorites();
+
   // State
   const [movie, setMovie] = useState(null);
   const [cast, setCast] = useState([]);
@@ -44,12 +48,16 @@ const DetailsScreen = ({ route, navigation }) => {
   const [similar, setSimilar] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [isFavorite, setIsFavorite] = useState(false);
   const [showFullOverview, setShowFullOverview] = useState(false);
+
+  // Animation for heart icon
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  // Check if current movie is favorited
+  const isFavorited = checkIsFavorite(movieId);
 
   useEffect(() => {
     loadMovieDetails();
-    checkIfFavorite();
   }, [movieId]);
 
   const loadMovieDetails = async () => {
@@ -101,35 +109,32 @@ const DetailsScreen = ({ route, navigation }) => {
     }
   };
 
-  const checkIfFavorite = async () => {
-    try {
-      const favoritesJson = await AsyncStorage.getItem('favorites');
-      const favorites = favoritesJson ? JSON.parse(favoritesJson) : [];
-      setIsFavorite(favorites.includes(movieId));
-    } catch (error) {
-      console.error('Error checking favorites:', error);
-    }
-  };
+  const toggleFavorite = () => {
+    if (!movie) return;
 
-  const toggleFavorite = async () => {
-    try {
-      const favoritesJson = await AsyncStorage.getItem('favorites');
-      let favorites = favoritesJson ? JSON.parse(favoritesJson) : [];
+    // Animate heart icon
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 1.3,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
 
-      if (isFavorite) {
-        // Remove from favorites
-        favorites = favorites.filter((id) => id !== movieId);
-        setIsFavorite(false);
-      } else {
-        // Add to favorites
-        favorites.push(movieId);
-        setIsFavorite(true);
-      }
+    // Toggle favorite in context
+    const wasAdded = toggleFavoriteContext(movie);
 
-      await AsyncStorage.setItem('favorites', JSON.stringify(favorites));
-    } catch (error) {
-      console.error('Error toggling favorite:', error);
-      Alert.alert('Error', 'Failed to update favorites');
+    // Optional: Show feedback message
+    if (wasAdded) {
+      console.log(`Added "${movie.title}" to favorites`);
+      // You can add toast notification here if desired
+    } else {
+      console.log(`Removed "${movie.title}" from favorites`);
     }
   };
 
@@ -197,9 +202,17 @@ const DetailsScreen = ({ route, navigation }) => {
         <TouchableOpacity 
           style={styles.favoriteButton} 
           onPress={toggleFavorite}
-          accessibilityLabel={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          accessibilityLabel={isFavorited ? 'Remove from favorites' : 'Add to favorites'}
         >
-          <Text style={styles.favoriteIcon}>{isFavorite ? '♥' : '♡'}</Text>
+          <Animated.Text 
+            style={[
+              styles.favoriteIcon,
+              { transform: [{ scale: scaleAnim }] },
+              isFavorited && styles.favoriteIconActive
+            ]}
+          >
+            {isFavorited ? '♥' : '♡'}
+          </Animated.Text>
         </TouchableOpacity>
       </View>
 
@@ -419,6 +432,9 @@ const styles = StyleSheet.create({
   favoriteIcon: {
     fontSize: 24,
     color: colors.pink,
+  },
+  favoriteIconActive: {
+    color: '#FF0000',
   },
   contentContainer: {
     paddingBottom: 32,
