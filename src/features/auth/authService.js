@@ -110,10 +110,19 @@ apiClient.interceptors.response.use(
  */
 export const login = async (username, password) => {
   try {
-    const response = await apiClient.post('/auth/login', {
+    // Clear any existing auth data before login to prevent conflicts
+    await clearAuthData();
+    
+    // Make login request without interceptor (no auth header needed)
+    const response = await axios.post(`${API_BASE_URL}/auth/login`, {
       username,
       password,
       expiresInMins: 30,
+    }, {
+      timeout: 10000,
+      headers: {
+        'Content-Type': 'application/json',
+      },
     });
 
     const { accessToken, refreshToken, ...userData } = response.data;

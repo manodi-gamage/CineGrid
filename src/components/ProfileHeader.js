@@ -2,6 +2,11 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 
 const ProfileHeader = ({ user, onEditPress }) => {
+  // Handle null user (during logout)
+  if (!user) {
+    return null;
+  }
+
   return (
     <View style={styles.container}>
       {/* Profile Image */}

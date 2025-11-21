@@ -24,6 +24,11 @@ const ProfileScreen = ({ navigation }) => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled] = useState(true); // Always enabled
 
+  // Handle null user (during logout or auth loading)
+  if (!user) {
+    return null;
+  }
+
   // Calculate statistics
   const favoritesCount = favorites?.length || 0;
   const stats = {
