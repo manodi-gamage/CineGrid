@@ -154,13 +154,13 @@ const LoginScreen = ({ navigation }) => {
         </Svg>
       </View>
 
-      {/* Header at top */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Welcome Back</Text>
-        <Text style={styles.subtitle}>Sign in to continue</Text>
-      </View>
-
       <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Header at top */}
+        <View style={styles.header}>
+          <Text style={styles.title}>Welcome Back</Text>
+          <Text style={styles.subtitle}>Sign in to continue</Text>
+        </View>
+
         {/* DEBUG BUTTON - Remove before production */}
         <TouchableOpacity
           onPress={resetOnboarding}
@@ -307,7 +307,8 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    justifyContent: 'center',
+    paddingTop: 60,
+    paddingBottom: 40,
   },
   // DEBUG BUTTON STYLES - Remove before production
   debugButton: {
@@ -327,11 +328,7 @@ const styles = StyleSheet.create({
   },
   // END DEBUG STYLES
   header: {
-    position: 'absolute',
-    top: 60,
-    left: 24,
-    right: 24,
-    zIndex: 1,
+    marginBottom: 32,
   },
   title: {
     fontSize: 36,
