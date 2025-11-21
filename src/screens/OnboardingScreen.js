@@ -145,8 +145,8 @@ const OnboardingScreen = ({ navigation }) => {
         <OnboardingButton
           title="Skip"
           onPress={handleSkip}
+          variant="skip"
           style={styles.skipButton}
-          textStyle={styles.skipText}
         />
       )}
 
