@@ -1,30 +1,30 @@
 /**
  * TMDB Movie Genres Constants
  * 
- * Complete list of TMDB genres with IDs, emojis, and colors
+ * Complete list of TMDB genres with IDs, colors, and representative movie posters
  * Source: https://api.themoviedb.org/3/genre/movie/list
  */
 
 export const GENRES = [
-  { id: 28, name: 'Action', emoji: '💥', color: '#FF6B6B' },
-  { id: 12, name: 'Adventure', emoji: '🗺️', color: '#4ECDC4' },
-  { id: 16, name: 'Animation', emoji: '🎨', color: '#95E1D3' },
-  { id: 35, name: 'Comedy', emoji: '😂', color: '#FFE66D' },
-  { id: 80, name: 'Crime', emoji: '🔫', color: '#A8E6CF' },
-  { id: 99, name: 'Documentary', emoji: '📽️', color: '#FFDAC1' },
-  { id: 18, name: 'Drama', emoji: '🎭', color: '#FF8B94' },
-  { id: 10751, name: 'Family', emoji: '👨‍👩‍👧‍👦', color: '#C7CEEA' },
-  { id: 14, name: 'Fantasy', emoji: '🧙‍♂️', color: '#B4A7D6' },
-  { id: 36, name: 'History', emoji: '📜', color: '#D4A574' },
-  { id: 27, name: 'Horror', emoji: '👻', color: '#2C3E50' },
-  { id: 10402, name: 'Music', emoji: '🎵', color: '#E8A0BF' },
-  { id: 9648, name: 'Mystery', emoji: '🔍', color: '#6C5B7B' },
-  { id: 10749, name: 'Romance', emoji: '💕', color: '#FFC0CB' },
-  { id: 878, name: 'Science Fiction', emoji: '🚀', color: '#00B4D8' },
-  { id: 10770, name: 'TV Movie', emoji: '📺', color: '#90A4AE' },
-  { id: 53, name: 'Thriller', emoji: '😱', color: '#B71C1C' },
-  { id: 10752, name: 'War', emoji: '⚔️', color: '#8D6E63' },
-  { id: 37, name: 'Western', emoji: '🤠', color: '#D4A574' }
+  { id: 28, name: 'Action', color: '#FF6B6B', posterPath: '/pFlaoHTZeyNkG83vxsAJiGzfSsa.jpg' }, // John Wick
+  { id: 12, name: 'Adventure', color: '#4ECDC4', posterPath: '/6oom5QYQ2yQTMJIbnvbkBL9cHo6.jpg' }, // Indiana Jones
+  { id: 16, name: 'Animation', color: '#95E1D3', posterPath: '/8cdWjvZQUExUUTzyp4t6EDMubfO.jpg' }, // Toy Story
+  { id: 35, name: 'Comedy', color: '#FFE66D', posterPath: '/xBHJaX9LMs5NISje9vNBhNCUNvs.jpg' }, // The Hangover
+  { id: 80, name: 'Crime', color: '#A8E6CF', posterPath: '/3bhkrj58Vtu7enYsRolD1fZdja1.jpg' }, // The Godfather
+  { id: 99, name: 'Documentary', color: '#FFDAC1', posterPath: '/kXfqcdQKsToO0OUXHcrrNCHDBzO.jpg' }, // Planet Earth
+  { id: 18, name: 'Drama', color: '#FF8B94', posterPath: '/3bhkrj58Vtu7enYsRolD1fZdja1.jpg' }, // The Shawshank Redemption
+  { id: 10751, name: 'Family', color: '#C7CEEA', posterPath: '/q6y0Go1tsGEsmtFryDOJo3dEmqu.jpg' }, // The Lion King
+  { id: 14, name: 'Fantasy', color: '#B4A7D6', posterPath: '/6WBeq4fCfn7AN0o21W9qNcRF2l9.jpg' }, // Harry Potter
+  { id: 36, name: 'History', color: '#D4A574', posterPath: '/suaEOtk1N1sgg2MTM7oZd2cfVp3.jpg' }, // Gladiator
+  { id: 27, name: 'Horror', color: '#2C3E50', posterPath: '/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg' }, // The Conjuring
+  { id: 10402, name: 'Music', color: '#E8A0BF', posterPath: '/lHu1wtNaczFPGFDTrjCSzeLPTKN.jpg' }, // Bohemian Rhapsody
+  { id: 9648, name: 'Mystery', color: '#6C5B7B', posterPath: '/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg' }, // Knives Out
+  { id: 10749, name: 'Romance', color: '#FFC0CB', posterPath: '/kEl2t3OhXc3Zb9FBh1AuYzRTgZp.jpg' }, // Titanic
+  { id: 878, name: 'Science Fiction', color: '#00B4D8', posterPath: '/qmDpIHrmpJINaRKAfWQfftjCdyi.jpg' }, // Interstellar
+  { id: 10770, name: 'TV Movie', color: '#90A4AE', posterPath: '/yDHYTfA3R0jFYba16jBB1ef8oIt.jpg' }, // High School Musical
+  { id: 53, name: 'Thriller', color: '#B71C1C', posterPath: '/dqK9Hag1054tghRQSqLSfrkvQnA.jpg' }, // Se7en
+  { id: 10752, name: 'War', color: '#8D6E63', posterPath: '/y4TQVpiMGosgjBPnv1XBMzObgNz.jpg' }, // Saving Private Ryan
+  { id: 37, name: 'Western', color: '#D4A574', posterPath: '/qVPMTbSJZQeASPHZXENwjmOHPKn.jpg' } // Django Unchained
 ];
 
 /**
