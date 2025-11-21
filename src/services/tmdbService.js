@@ -361,15 +361,16 @@ export const getMovieRecommendations = async (movieId, page = 1) => {
 
 /**
  * Get movies by genre
- * @param {number} genreId - TMDB genre ID
+ * @param {number|Array<number>} genreId - TMDB genre ID or array of IDs
  * @param {number} page - Page number (default: 1)
  * @returns {Promise} Movies data
  */
 export const getMoviesByGenre = async (genreId, page = 1) => {
   try {
+    const genreIds = Array.isArray(genreId) ? genreId.join(',') : genreId;
     const response = await tmdbApi.get('/discover/movie', {
       params: { 
-        with_genres: genreId,
+        with_genres: genreIds,
         page,
         sort_by: 'popularity.desc',
       },
@@ -387,6 +388,43 @@ export const getMoviesByGenre = async (genreId, page = 1) => {
 export const getMovieGenres = async () => {
   try {
     const response = await tmdbApi.get('/genre/movie/list');
+    return response;
+  } catch (error) {
+    throw error;
+  }
+};
+
+/**
+ * Discover movies with multiple filters
+ * @param {Object} filters - Filter options
+ * @param {number|Array<number>} filters.genreId - Genre ID(s)
+ * @param {string} filters.sortBy - Sort order (e.g., 'popularity.desc', 'vote_average.desc')
+ * @param {string} filters.releaseDateGte - Minimum release date (YYYY-MM-DD)
+ * @param {string} filters.releaseDateLte - Maximum release date (YYYY-MM-DD)
+ * @param {number} filters.voteAverageGte - Minimum vote average
+ * @param {number} filters.voteAverageLte - Maximum vote average
+ * @param {string} filters.language - Original language (e.g., 'en')
+ * @param {number} page - Page number (default: 1)
+ * @returns {Promise} Discovered movies data
+ */
+export const discoverMovies = async (filters = {}, page = 1) => {
+  try {
+    const genreIds = filters.genreId 
+      ? (Array.isArray(filters.genreId) ? filters.genreId.join(',') : filters.genreId)
+      : undefined;
+
+    const response = await tmdbApi.get('/discover/movie', {
+      params: {
+        page,
+        sort_by: filters.sortBy || 'popularity.desc',
+        with_genres: genreIds,
+        'primary_release_date.gte': filters.releaseDateGte,
+        'primary_release_date.lte': filters.releaseDateLte,
+        'vote_average.gte': filters.voteAverageGte,
+        'vote_average.lte': filters.voteAverageLte,
+        with_original_language: filters.language,
+      },
+    });
     return response;
   } catch (error) {
     throw error;
@@ -437,6 +475,7 @@ const tmdbService = {
   getMoviesByGenre,
   getMovieGenres,
   getMovieReviews,
+  discoverMovies,
 };
 
 export default tmdbService;

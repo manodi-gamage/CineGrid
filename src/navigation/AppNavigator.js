@@ -13,6 +13,7 @@ import DetailsScreen from '../screens/DetailsScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import SearchScreen from '../screens/SearchScreen';
 import CategoryListScreen from '../screens/CategoryListScreen';
+import GenresScreen from '../screens/GenresScreen';
 
 const Stack = createStackNavigator();
 
@@ -157,6 +158,23 @@ const Navigation = () => {
               fontWeight: 'bold',
             },
           })}
+        />
+        
+        {/* Genres Screen */}
+        <Stack.Screen
+          name="Genres"
+          component={GenresScreen}
+          options={{
+            title: 'Browse Genres',
+            headerShown: true,
+            headerStyle: {
+              backgroundColor: colors.background,
+            },
+            headerTintColor: colors.white,
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          }}
         />
       </Stack.Navigator>
     </NavigationContainer>

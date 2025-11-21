@@ -29,7 +29,10 @@ import LoadingSpinner from '../components/LoadingSpinner';
 import { colors } from '../utils/colors';
 
 const CategoryListScreen = ({ route, navigation }) => {
-  const { category = 'popular', title = 'Movies' } = route.params || {};
+  const { category = 'popular', title = 'Movies', genreId, genreName } = route.params || {};
+
+  // Determine if this is a genre category
+  const isGenreCategory = category === 'genre' && genreId;
 
   // State management
   const [movies, setMovies] = useState([]);
@@ -46,6 +49,12 @@ const CategoryListScreen = ({ route, navigation }) => {
    * Map category param to TMDB service function
    */
   const getCategoryMovies = async (categoryType, pageNumber) => {
+    // Handle genre category separately
+    if (isGenreCategory) {
+      return await tmdbService.getMoviesByGenre(genreId, pageNumber);
+    }
+
+    // Handle regular categories
     switch (categoryType) {
       case 'popular':
         return await tmdbService.getPopularMovies(pageNumber);
@@ -139,14 +148,14 @@ const CategoryListScreen = ({ route, navigation }) => {
    */
   useEffect(() => {
     loadMovies();
-  }, [category]);
+  }, [category, genreId]);
 
   /**
    * Set navigation header title
    */
   useEffect(() => {
     navigation.setOptions({
-      title: title,
+      title: isGenreCategory ? `${genreName} Movies` : title,
       headerShown: true,
       headerStyle: {
         backgroundColor: colors.background,
@@ -165,7 +174,7 @@ const CategoryListScreen = ({ route, navigation }) => {
         </TouchableOpacity>
       ),
     });
-  }, [navigation, title]);
+  }, [navigation, title, isGenreCategory, genreName]);
 
   /**
    * Render error state

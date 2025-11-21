@@ -14,6 +14,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   StatusBar,
+  FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -22,6 +23,8 @@ import tmdbService from '../services/tmdbService';
 import MovieCarousel from '../components/MovieCarousel';
 import CategorySection from '../components/CategorySection';
 import LoadingSpinner from '../components/LoadingSpinner';
+import GenreCard from '../components/GenreCard';
+import { getPopularGenres } from '../constants/genres';
 import { colors } from '../utils/colors';
 
 const HomeScreen = ({ navigation }) => {
@@ -105,6 +108,25 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate('Profile');
   };
 
+  /**
+   * Navigate to genres screen
+   */
+  const handleGenresPress = () => {
+    navigation.navigate('Genres');
+  };
+
+  /**
+   * Navigate to genre category
+   */
+  const handleGenrePress = (genre) => {
+    navigation.navigate('CategoryList', {
+      category: 'genre',
+      genreId: genre.id,
+      genreName: genre.name,
+      title: `${genre.name} Movies`,
+    });
+  };
+
   // Load movies on mount
   useEffect(() => {
     fetchMovies();
@@ -139,6 +161,9 @@ const HomeScreen = ({ navigation }) => {
 
   // Get user's first name
   const firstName = user?.firstName || user?.username || 'Guest';
+
+  // Get popular genres for display
+  const popularGenres = getPopularGenres();
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -195,6 +220,29 @@ const HomeScreen = ({ navigation }) => {
           onMoviePress={handleMoviePress}
           onSeeAllPress={() => handleSeeAll('popular', 'Popular Movies')}
         />
+
+        {/* Browse by Genre */}
+        <View style={styles.genresSection}>
+          <View style={styles.genreHeader}>
+            <Text style={styles.sectionTitle}>Browse by Genre</Text>
+            <TouchableOpacity onPress={handleGenresPress}>
+              <Text style={styles.seeAllText}>See All →</Text>
+            </TouchableOpacity>
+          </View>
+          <FlatList
+            horizontal
+            data={popularGenres}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <GenreCard
+                genre={item}
+                onPress={() => handleGenrePress(item)}
+              />
+            )}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.genresList}
+          />
+        </View>
 
         {/* Top Rated Movies */}
         <CategorySection
@@ -299,6 +347,24 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: 32,
+  },
+  genresSection: {
+    marginBottom: 24,
+  },
+  genreHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    marginBottom: 16,
+  },
+  seeAllText: {
+    color: colors.cyan,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  genresList: {
+    paddingHorizontal: 16,
   },
 });
 

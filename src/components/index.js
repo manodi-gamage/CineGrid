@@ -19,3 +19,4 @@ export { default as RemoveButton } from './RemoveButton';
 export { default as MovieGridList } from './MovieGridList';
 export { default as FilterChip } from './FilterChip';
 export { default as SortButton } from './SortButton';
+export { default as GenreCard } from './GenreCard';
