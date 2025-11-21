@@ -96,13 +96,37 @@ const Navigation = () => {
     <NavigationContainer linking={linking}>
       <Stack.Navigator
         initialRouteName={getInitialRouteName()}
-        screenOptions={{ headerShown: false }}
+        screenOptions={{ 
+          headerShown: false,
+          animationEnabled: true,
+        }}
       >
-        {/* Always include all screens but control access via navigation logic */}
-        <Stack.Screen name="Onboarding" component={OnboardingScreen} />
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="Register" component={RegisterScreen} />
-        <Stack.Screen name="Main" component={MainTabNavigator} />
+        {/* Onboarding - shown on first launch */}
+        <Stack.Screen 
+          name="Onboarding" 
+          component={OnboardingScreen}
+          options={{ gestureEnabled: false }}
+        />
+        
+        {/* Auth Screens */}
+        <Stack.Screen 
+          name="Login" 
+          component={LoginScreen}
+          options={{ gestureEnabled: false }}
+        />
+        <Stack.Screen 
+          name="Register" 
+          component={RegisterScreen}
+        />
+        
+        {/* Main App */}
+        <Stack.Screen 
+          name="Main" 
+          component={MainTabNavigator}
+          options={{ gestureEnabled: false }}
+        />
+        
+        {/* Details Screen */}
         <Stack.Screen
           name="Details"
           component={DetailsScreen}

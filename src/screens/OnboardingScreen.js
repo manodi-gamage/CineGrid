@@ -60,7 +60,8 @@ const OnboardingScreen = ({ navigation }) => {
         animated: true,
       });
     } else {
-      navigation.navigate('Login');
+      // Navigate to Login screen
+      navigation.replace('Login');
     }
   };
 
