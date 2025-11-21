@@ -6,7 +6,7 @@ const AboutSection = () => {
     <View style={styles.container}>
       {/* App Icon/Logo */}
       <Image
-        source={require('../../assets/icon.png')}
+        source={require('../../assets/app-icon.png')}
         style={styles.appIcon}
       />
       

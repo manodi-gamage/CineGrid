@@ -19,6 +19,7 @@ const AuthContext = createContext({
   login: async () => {},
   logout: async () => {},
   refreshUser: async () => {},
+  updateUserProfile: async () => {},
 });
 
 /**
@@ -131,6 +132,26 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Update user profile data locally
+   * @param {Object} updates - Profile updates (e.g., { image: 'uri' })
+   */
+  const updateUserProfile = async (updates) => {
+    try {
+      const updatedUser = { ...user, ...updates };
+      setUser(updatedUser);
+      
+      // Store updated user data
+      const { storeUserData } = require('./authStorage');
+      await storeUserData(updatedUser);
+      
+      return updatedUser;
+    } catch (error) {
+      console.error('Error updating user profile:', error);
+      throw error;
+    }
+  };
+
   const value = {
     user,
     isLoading,
@@ -138,6 +159,7 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     refreshUser,
+    updateUserProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

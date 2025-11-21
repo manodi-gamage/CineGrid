@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 const ProfileHeader = ({ user, onEditPress }) => {
   // Handle null user (during logout)
@@ -9,11 +10,20 @@ const ProfileHeader = ({ user, onEditPress }) => {
 
   return (
     <View style={styles.container}>
-      {/* Profile Image */}
-      <Image
-        source={{ uri: user.image || 'https://via.placeholder.com/120' }}
-        style={styles.profileImage}
-      />
+      {/* Profile Image with Camera Icon */}
+      <View style={styles.imageContainer}>
+        <Image
+          source={{ uri: user.image || 'https://via.placeholder.com/120' }}
+          style={styles.profileImage}
+        />
+        <TouchableOpacity 
+          style={styles.cameraIconContainer}
+          onPress={onEditPress}
+          activeOpacity={0.7}
+        >
+          <Ionicons name="camera" size={20} color="#FFFFFF" />
+        </TouchableOpacity>
+      </View>
       
       {/* User Info */}
       <Text style={styles.name}>
@@ -46,13 +56,29 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginBottom: 16,
   },
+  imageContainer: {
+    position: 'relative',
+    marginBottom: 16,
+  },
   profileImage: {
     width: 120,
     height: 120,
     borderRadius: 60,
-    marginBottom: 16,
     borderWidth: 3,
     borderColor: '#007AFF',
+  },
+  cameraIconContainer: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: '#007AFF',
+    borderRadius: 18,
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: '#1E1E1E',
   },
   name: {
     fontSize: 24,

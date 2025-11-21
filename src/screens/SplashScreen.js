@@ -81,7 +81,7 @@ const SplashScreen = ({ navigation }) => {
 
       {/* App Logo */}
       <Image
-        source={require('../../assets/icon.png')}
+        source={require('../../assets/app-icon.png')}
         style={styles.logo}
       />
       

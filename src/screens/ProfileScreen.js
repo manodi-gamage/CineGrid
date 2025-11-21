@@ -7,6 +7,7 @@ import {
   Alert,
   TouchableOpacity,
 } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
 import { colors } from '../utils/colors';
 import { useAuth } from '../features/auth/AuthContext';
@@ -19,7 +20,7 @@ import { APP_INFO } from '../utils/appInfo';
 import { resetOnboarding } from '../utils/onboardingStorage';
 
 const ProfileScreen = ({ navigation }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUserProfile } = useAuth();
   const { favorites } = useFavorites();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [darkModeEnabled] = useState(true); // Always enabled
@@ -45,6 +46,51 @@ const ProfileScreen = ({ navigation }) => {
       `${feature} will be available in a future update.`,
       [{ text: 'OK' }]
     );
+  };
+
+  // Handle edit profile - open image picker
+  const handleEditProfile = async () => {
+    try {
+      // Request permission to access media library
+      const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      
+      if (permissionResult.granted === false) {
+        Alert.alert(
+          'Permission Required',
+          'Permission to access camera roll is required to change your profile picture.',
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+
+      // Launch image picker
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const imageUri = result.assets[0].uri;
+        
+        // Update user profile with new image
+        await updateUserProfile({ image: imageUri });
+        
+        Alert.alert(
+          'Success',
+          'Profile picture updated successfully!',
+          [{ text: 'OK' }]
+        );
+      }
+    } catch (error) {
+      console.error('Error picking image:', error);
+      Alert.alert(
+        'Error',
+        'Failed to update profile picture. Please try again.',
+        [{ text: 'OK' }]
+      );
+    }
   };
 
   // Handle logout with confirmation
@@ -167,7 +213,7 @@ const ProfileScreen = ({ navigation }) => {
         {/* Profile Header */}
         <ProfileHeader 
           user={user} 
-          onEditPress={() => showComingSoon('Edit Profile')}
+          onEditPress={handleEditProfile}
         />
 
         {/* Statistics Section */}
@@ -238,7 +284,7 @@ const ProfileScreen = ({ navigation }) => {
           <SettingsItem
             icon="👤"
             label="Edit Profile"
-            onPress={() => showComingSoon('Edit Profile')}
+            onPress={handleEditProfile}
           />
           <SettingsItem
             icon="🔒"
