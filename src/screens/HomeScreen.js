@@ -97,9 +97,7 @@ const HomeScreen = ({ navigation }) => {
    * Navigate to search screen
    */
   const handleSearchPress = () => {
-    // TODO: Navigate to Search screen when implemented
-    console.log('Navigate to search');
-    // navigation.navigate('Search');
+    navigation.navigate('Search');
   };
 
   /**

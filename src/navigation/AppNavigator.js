@@ -11,6 +11,7 @@ import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import DetailsScreen from '../screens/DetailsScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
+import SearchScreen from '../screens/SearchScreen';
 
 const Stack = createStackNavigator();
 
@@ -33,6 +34,7 @@ const linking = {
         },
       },
       Details: 'details/:id',
+      Search: 'search',
     },
   },
 };
@@ -131,6 +133,12 @@ const Navigation = () => {
           name="Details"
           component={DetailsScreen}
           options={{ headerShown: true, title: 'Movie Details' }}
+        />
+        
+        {/* Search Screen */}
+        <Stack.Screen
+          name="Search"
+          component={SearchScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>
