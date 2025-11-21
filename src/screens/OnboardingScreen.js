@@ -67,7 +67,7 @@ const OnboardingScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {/* Gradient Background Orbs - Using SVG for true radial gradients */}
-      <View style={styles.backgroundGradients}>
+      <View style={styles.backgroundGradients} pointerEvents="none">
         {/* Pink Orb - Top Left */}
         <Svg style={styles.gradientOrb1} viewBox="0 0 300 300">
           <Defs>

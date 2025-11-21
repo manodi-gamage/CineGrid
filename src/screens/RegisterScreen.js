@@ -9,20 +9,92 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Defs, RadialGradient, Stop, Circle } from 'react-native-svg';
 import { colors } from '../utils/colors';
+import { register } from '../features/auth/authService';
+import { registrationValidationSchema, validateField } from '../features/auth/validation';
 
 const RegisterScreen = ({ navigation }) => {
-  const [fullName, setFullName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleRegister = () => {
-    // Add your registration logic here
-    console.log('Register:', fullName, email, password);
+  /**
+   * Validate field on blur
+   */
+  const handleFieldBlur = async (fieldName, value) => {
+    const error = await validateField(registrationValidationSchema, fieldName, value);
+    setErrors((prev) => ({ ...prev, [fieldName]: error }));
+  };
+
+  /**
+   * Handle registration form submission
+   */
+  const handleRegister = async () => {
+    try {
+      // Clear previous errors
+      setErrors({});
+      
+      // Validate form
+      await registrationValidationSchema.validate(
+        { firstName, lastName, username, email, password, confirmPassword },
+        { abortEarly: false }
+      );
+
+      setIsLoading(true);
+
+      // Attempt registration (simulated with DummyJSON)
+      await register({
+        firstName,
+        lastName,
+        username,
+        email,
+        password,
+      });
+
+      setIsLoading(false);
+
+      // Show success message
+      Alert.alert(
+        'Registration Successful!',
+        'This is a demo app using DummyJSON API. Your account has been simulated but not persisted.\n\nPlease use these test credentials to login:\n\nUsername: emilys\nPassword: emilyspass',
+        [
+          {
+            text: 'Go to Login',
+            onPress: () => navigation.navigate('Login'),
+          },
+        ]
+      );
+    } catch (error) {
+      setIsLoading(false);
+
+      if (error.name === 'ValidationError') {
+        // Handle validation errors
+        const validationErrors = {};
+        error.inner.forEach((err) => {
+          if (err.path) {
+            validationErrors[err.path] = err.message;
+          }
+        });
+        setErrors(validationErrors);
+      } else {
+        // Handle API errors
+        Alert.alert(
+          'Registration Failed',
+          error.message || 'Unable to create account. Please try again.',
+          [{ text: 'OK' }]
+        );
+      }
+    }
   };
 
   return (
@@ -31,7 +103,7 @@ const RegisterScreen = ({ navigation }) => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       {/* Neon Background Orbs */}
-      <View style={styles.backgroundGradients}>
+      <View style={styles.backgroundGradients} pointerEvents="none">
         {/* Pink Orb - Top Left */}
         <Svg style={styles.gradientOrb1} viewBox="0 0 300 300">
           <Defs>
@@ -66,62 +138,175 @@ const RegisterScreen = ({ navigation }) => {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
+        {/* Demo Notice */}
+        <View style={styles.demoNotice}>
+          <Text style={styles.demoText}>
+            📝 Demo Registration - Use test credentials to login after signup
+          </Text>
+        </View>
+
         <View style={styles.form}>
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Full Name</Text>
-            <View style={styles.inputWrapper}>
+            <Text style={styles.label}>First Name</Text>
+            <View style={[
+              styles.inputWrapper,
+              errors.firstName && styles.inputError
+            ]}>
               <TextInput
                 style={styles.input}
-                placeholder="Enter your full name"
+                placeholder="Enter your first name"
                 placeholderTextColor={colors.textSecondary}
-                value={fullName}
-                onChangeText={setFullName}
+                value={firstName}
+                onChangeText={(text) => {
+                  setFirstName(text);
+                  if (errors.firstName) {
+                    setErrors((prev) => ({ ...prev, firstName: null }));
+                  }
+                }}
+                onBlur={() => handleFieldBlur('firstName', firstName)}
                 autoCapitalize="words"
+                editable={!isLoading}
               />
             </View>
+            {errors.firstName && (
+              <Text style={styles.errorText}>{errors.firstName}</Text>
+            )}
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Last Name</Text>
+            <View style={[
+              styles.inputWrapper,
+              errors.lastName && styles.inputError
+            ]}>
+              <TextInput
+                style={styles.input}
+                placeholder="Enter your last name"
+                placeholderTextColor={colors.textSecondary}
+                value={lastName}
+                onChangeText={(text) => {
+                  setLastName(text);
+                  if (errors.lastName) {
+                    setErrors((prev) => ({ ...prev, lastName: null }));
+                  }
+                }}
+                onBlur={() => handleFieldBlur('lastName', lastName)}
+                autoCapitalize="words"
+                editable={!isLoading}
+              />
+            </View>
+            {errors.lastName && (
+              <Text style={styles.errorText}>{errors.lastName}</Text>
+            )}
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Username</Text>
+            <View style={[
+              styles.inputWrapper,
+              errors.username && styles.inputError
+            ]}>
+              <TextInput
+                style={styles.input}
+                placeholder="Choose a username"
+                placeholderTextColor={colors.textSecondary}
+                value={username}
+                onChangeText={(text) => {
+                  setUsername(text);
+                  if (errors.username) {
+                    setErrors((prev) => ({ ...prev, username: null }));
+                  }
+                }}
+                onBlur={() => handleFieldBlur('username', username)}
+                autoCapitalize="none"
+                editable={!isLoading}
+              />
+            </View>
+            {errors.username && (
+              <Text style={styles.errorText}>{errors.username}</Text>
+            )}
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Email</Text>
-            <View style={styles.inputWrapper}>
+            <View style={[
+              styles.inputWrapper,
+              errors.email && styles.inputError
+            ]}>
               <TextInput
                 style={styles.input}
                 placeholder="Enter your email"
                 placeholderTextColor={colors.textSecondary}
                 value={email}
-                onChangeText={setEmail}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  if (errors.email) {
+                    setErrors((prev) => ({ ...prev, email: null }));
+                  }
+                }}
+                onBlur={() => handleFieldBlur('email', email)}
                 keyboardType="email-address"
                 autoCapitalize="none"
+                editable={!isLoading}
               />
             </View>
+            {errors.email && (
+              <Text style={styles.errorText}>{errors.email}</Text>
+            )}
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Password</Text>
-            <View style={styles.inputWrapper}>
+            <View style={[
+              styles.inputWrapper,
+              errors.password && styles.inputError
+            ]}>
               <TextInput
                 style={styles.input}
                 placeholder="Create a password"
                 placeholderTextColor={colors.textSecondary}
                 value={password}
-                onChangeText={setPassword}
+                onChangeText={(text) => {
+                  setPassword(text);
+                  if (errors.password) {
+                    setErrors((prev) => ({ ...prev, password: null }));
+                  }
+                }}
+                onBlur={() => handleFieldBlur('password', password)}
                 secureTextEntry
+                editable={!isLoading}
               />
             </View>
+            {errors.password && (
+              <Text style={styles.errorText}>{errors.password}</Text>
+            )}
           </View>
 
           <View style={styles.inputContainer}>
             <Text style={styles.label}>Confirm Password</Text>
-            <View style={styles.inputWrapper}>
+            <View style={[
+              styles.inputWrapper,
+              errors.confirmPassword && styles.inputError
+            ]}>
               <TextInput
                 style={styles.input}
                 placeholder="Confirm your password"
                 placeholderTextColor={colors.textSecondary}
                 value={confirmPassword}
-                onChangeText={setConfirmPassword}
+                onChangeText={(text) => {
+                  setConfirmPassword(text);
+                  if (errors.confirmPassword) {
+                    setErrors((prev) => ({ ...prev, confirmPassword: null }));
+                  }
+                }}
+                onBlur={() => handleFieldBlur('confirmPassword', confirmPassword)}
                 secureTextEntry
+                editable={!isLoading}
               />
             </View>
+            {errors.confirmPassword && (
+              <Text style={styles.errorText}>{errors.confirmPassword}</Text>
+            )}
           </View>
         </View>
 
@@ -131,6 +316,7 @@ const RegisterScreen = ({ navigation }) => {
             onPress={handleRegister}
             activeOpacity={0.8}
             style={styles.buttonContainer}
+            disabled={isLoading}
           >
             <LinearGradient
               colors={[colors.pink, colors.cyan]}
@@ -139,14 +325,21 @@ const RegisterScreen = ({ navigation }) => {
               style={styles.buttonGradientBorder}
             >
               <View style={styles.buttonInner}>
-                <Text style={styles.buttonText}>Sign Up</Text>
+                {isLoading ? (
+                  <ActivityIndicator color={colors.white} size="small" />
+                ) : (
+                  <Text style={styles.buttonText}>Sign Up</Text>
+                )}
               </View>
             </LinearGradient>
           </TouchableOpacity>
 
           <View style={styles.footerLinks}>
             <Text style={styles.footerText}>Already have an account? </Text>
-            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Login')}
+              disabled={isLoading}
+            >
               <Text style={styles.signInText}>Sign In</Text>
             </TouchableOpacity>
           </View>
@@ -225,6 +418,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     fontSize: 16,
     color: colors.white,
+  },
+  demoNotice: {
+    backgroundColor: 'rgba(0, 250, 254, 0.1)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.cyan,
+    padding: 12,
+    marginBottom: 20,
+  },
+  demoText: {
+    color: colors.cyan,
+    fontSize: 12,
+    textAlign: 'center',
+  },
+  inputError: {
+    borderColor: colors.pink,
+    borderWidth: 1.5,
+  },
+  errorText: {
+    color: colors.pink,
+    fontSize: 12,
+    marginTop: 4,
+    marginLeft: 4,
   },
   footer: {
     marginTop: 32,
