@@ -25,3 +25,7 @@ export { default as StatCard } from './StatCard';
 export { default as SettingsItem } from './SettingsItem';
 export { default as AboutSection } from './AboutSection';
 
+// Onboarding Components
+export { default as OnboardingSlide } from './OnboardingSlide';
+export { default as PaginationDots } from './PaginationDots';
+export { default as OnboardingButton } from './OnboardingButton';

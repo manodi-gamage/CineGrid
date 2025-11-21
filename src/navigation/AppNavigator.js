@@ -1,16 +1,15 @@
 // src/navigation/AppNavigator.js
-import React, { useState, useEffect } from 'react';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { colors } from '../utils/colors';
-import { AuthProvider, useAuth } from '../features/auth/AuthContext';
-import { hasLaunchedBefore, setHasLaunched } from '../features/auth/authStorage';
+import { AuthProvider } from '../features/auth/AuthContext';
 import MainTabNavigator from './MainTabNavigator';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import DetailsScreen from '../screens/DetailsScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
+import SplashScreen from '../screens/SplashScreen';
 import SearchScreen from '../screens/SearchScreen';
 import CategoryListScreen from '../screens/CategoryListScreen';
 import GenresScreen from '../screens/GenresScreen';
@@ -24,6 +23,7 @@ const linking = {
   prefixes: ['http://localhost:8081', 'cinegrid://'],
   config: {
     screens: {
+      Splash: 'splash',
       Onboarding: 'onboarding',
       Login: 'login',
       Register: 'register',
@@ -42,69 +42,25 @@ const linking = {
 };
 
 /**
- * Navigation component that manages auth-based routing
+ * Navigation Stack Component
  */
 const Navigation = () => {
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const [isFirstLaunch, setIsFirstLaunch] = useState(null);
-  const [isCheckingLaunch, setIsCheckingLaunch] = useState(true);
-
-  useEffect(() => {
-    checkFirstLaunch();
-  }, []);
-
-  /**
-   * Check if this is the first time the user is opening the app
-   */
-  const checkFirstLaunch = async () => {
-    try {
-      const hasLaunched = await hasLaunchedBefore();
-      
-      if (!hasLaunched) {
-        setIsFirstLaunch(true);
-        await setHasLaunched();
-      } else {
-        setIsFirstLaunch(false);
-      }
-    } catch (error) {
-      console.error('Error checking first launch:', error);
-      setIsFirstLaunch(false);
-    } finally {
-      setIsCheckingLaunch(false);
-    }
-  };
-
-  // Show loading screen while checking authentication and first launch
-  if (authLoading || isCheckingLaunch) {
-    return (
-      <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={colors.cyan} />
-      </View>
-    );
-  }
-
-  /**
-   * Determine initial route based on launch status and authentication
-   */
-  const getInitialRouteName = () => {
-    if (isFirstLaunch) {
-      return 'Onboarding';
-    }
-    if (isAuthenticated) {
-      return 'Main';
-    }
-    return 'Login';
-  };
-
   return (
     <NavigationContainer linking={linking}>
       <Stack.Navigator
-        initialRouteName={getInitialRouteName()}
+        initialRouteName="Splash"
         screenOptions={{ 
           headerShown: false,
           animationEnabled: true,
         }}
       >
+        {/* Splash Screen - Always shown first */}
+        <Stack.Screen 
+          name="Splash" 
+          component={SplashScreen}
+          options={{ gestureEnabled: false }}
+        />
+        
         {/* Onboarding - shown on first launch */}
         <Stack.Screen 
           name="Onboarding" 
@@ -191,14 +147,5 @@ const AppNavigator = () => {
     </AuthProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.background,
-  },
-});
 
 export default AppNavigator;

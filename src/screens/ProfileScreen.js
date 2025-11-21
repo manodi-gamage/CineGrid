@@ -1,4 +1,3 @@
-// src/screens/ProfileScreen.js
 import React, { useState } from 'react';
 import {
   View,
@@ -17,6 +16,7 @@ import StatCard from '../components/StatCard';
 import SettingsItem from '../components/SettingsItem';
 import AboutSection from '../components/AboutSection';
 import { APP_INFO } from '../utils/appInfo';
+import { resetOnboarding } from '../utils/onboardingStorage';
 
 const ProfileScreen = ({ navigation }) => {
   const { user, logout } = useAuth();
@@ -89,6 +89,35 @@ const ProfileScreen = ({ navigation }) => {
           style: 'destructive',
           onPress: () => {
             showComingSoon('Account deletion');
+          },
+        },
+      ]
+    );
+  };
+
+  // Handle reset onboarding (developer option)
+  const handleResetOnboarding = () => {
+    Alert.alert(
+      'Reset Onboarding',
+      'This will reset the onboarding flow. You will see it again on next app launch.',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Reset',
+          onPress: async () => {
+            const success = await resetOnboarding();
+            if (success) {
+              Alert.alert(
+                'Success',
+                'Onboarding has been reset. Restart the app to see it again.',
+                [{ text: 'OK' }]
+              );
+            } else {
+              Alert.alert('Error', 'Failed to reset onboarding.');
+            }
           },
         },
       ]
@@ -284,6 +313,16 @@ const ProfileScreen = ({ navigation }) => {
             danger={true}
             onPress={handleDeleteAccount}
             showArrow={false}
+          />
+        </View>
+
+        {/* Developer Options */}
+        <SectionHeader title="Developer Options" />
+        <View style={styles.section}>
+          <SettingsItem
+            icon="🔄"
+            label="Reset Onboarding"
+            onPress={handleResetOnboarding}
           />
         </View>
 
