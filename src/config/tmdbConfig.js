@@ -122,4 +122,48 @@ export const getImageBaseUrl = (size) => {
   return `${tmdbConfig.imageBaseUrl}${size}`;
 };
 
+/**
+ * Get poster image URL
+ * @param {string} path - Poster path from TMDB API
+ * @param {string} size - Image size (default: w500)
+ * @returns {string|null} Full poster URL or null if no path
+ */
+export const getPosterUrl = (path, size = 'w500') => {
+  if (!path) return null;
+  return `${tmdbConfig.imageBaseUrl}${size}${path}`;
+};
+
+/**
+ * Get backdrop image URL
+ * @param {string} path - Backdrop path from TMDB API
+ * @param {string} size - Image size (default: original)
+ * @returns {string|null} Full backdrop URL or null if no path
+ */
+export const getBackdropUrl = (path, size = 'original') => {
+  if (!path) return null;
+  return `${tmdbConfig.imageBaseUrl}${size}${path}`;
+};
+
+/**
+ * Get profile image URL
+ * @param {string} path - Profile path from TMDB API
+ * @param {string} size - Image size (default: w185)
+ * @returns {string|null} Full profile URL or null if no path
+ */
+export const getProfileUrl = (path, size = 'w185') => {
+  if (!path) return null;
+  return `${tmdbConfig.imageBaseUrl}${size}${path}`;
+};
+
+/**
+ * Get logo image URL
+ * @param {string} path - Logo path from TMDB API
+ * @param {string} size - Image size (default: w185)
+ * @returns {string|null} Full logo URL or null if no path
+ */
+export const getLogoUrl = (path, size = 'w185') => {
+  if (!path) return null;
+  return `${tmdbConfig.imageBaseUrl}${size}${path}`;
+};
+
 export default tmdbConfig;
