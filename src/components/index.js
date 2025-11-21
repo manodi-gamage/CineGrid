@@ -16,3 +16,6 @@ export { default as SimilarMoviesSection } from './SimilarMoviesSection';
 export { default as FavoriteMovieCard } from './FavoriteMovieCard';
 export { default as EmptyFavorites } from './EmptyFavorites';
 export { default as RemoveButton } from './RemoveButton';
+export { default as MovieGridList } from './MovieGridList';
+export { default as FilterChip } from './FilterChip';
+export { default as SortButton } from './SortButton';

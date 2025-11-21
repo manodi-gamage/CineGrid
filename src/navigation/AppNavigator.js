@@ -12,6 +12,7 @@ import RegisterScreen from '../screens/RegisterScreen';
 import DetailsScreen from '../screens/DetailsScreen';
 import OnboardingScreen from '../screens/OnboardingScreen';
 import SearchScreen from '../screens/SearchScreen';
+import CategoryListScreen from '../screens/CategoryListScreen';
 
 const Stack = createStackNavigator();
 
@@ -139,6 +140,23 @@ const Navigation = () => {
         <Stack.Screen
           name="Search"
           component={SearchScreen}
+        />
+        
+        {/* Category List Screen */}
+        <Stack.Screen
+          name="CategoryList"
+          component={CategoryListScreen}
+          options={({ route }) => ({
+            title: route.params?.title || 'Movies',
+            headerShown: true,
+            headerStyle: {
+              backgroundColor: colors.background,
+            },
+            headerTintColor: colors.white,
+            headerTitleStyle: {
+              fontWeight: 'bold',
+            },
+          })}
         />
       </Stack.Navigator>
     </NavigationContainer>

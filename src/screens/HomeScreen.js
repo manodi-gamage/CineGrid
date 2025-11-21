@@ -88,9 +88,7 @@ const HomeScreen = ({ navigation }) => {
    * Navigate to category list (See All)
    */
   const handleSeeAll = (category, title) => {
-    // TODO: Navigate to CategoryList screen when implemented
-    console.log('See all:', category);
-    // navigation.navigate('CategoryList', { category, title });
+    navigation.navigate('CategoryList', { category, title });
   };
 
   /**
@@ -203,7 +201,7 @@ const HomeScreen = ({ navigation }) => {
           title="Top Rated"
           movies={topRated}
           onMoviePress={handleMoviePress}
-          onSeeAllPress={() => handleSeeAll('top_rated', 'Top Rated')}
+          onSeeAllPress={() => handleSeeAll('top_rated', 'Top Rated Movies')}
         />
 
         {/* Upcoming Movies */}
@@ -211,7 +209,7 @@ const HomeScreen = ({ navigation }) => {
           title="Coming Soon"
           movies={upcoming}
           onMoviePress={handleMoviePress}
-          onSeeAllPress={() => handleSeeAll('upcoming', 'Coming Soon')}
+          onSeeAllPress={() => handleSeeAll('upcoming', 'Upcoming Movies')}
         />
 
         {/* Bottom spacing */}
