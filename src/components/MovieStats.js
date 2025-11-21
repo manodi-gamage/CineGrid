@@ -51,6 +51,7 @@ const MovieStats = ({ rating, voteCount, runtime, popularity, status }) => {
 const styles = StyleSheet.create({
   container: {
     marginVertical: 16,
+    paddingHorizontal: 16,
   },
   statItem: {
     marginBottom: 8,

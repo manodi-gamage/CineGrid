@@ -132,7 +132,7 @@ const Navigation = () => {
         <Stack.Screen
           name="Details"
           component={DetailsScreen}
-          options={{ headerShown: true, title: 'Movie Details' }}
+          options={{ headerShown: false }}
         />
         
         {/* Search Screen */}
